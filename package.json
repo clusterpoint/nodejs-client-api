@@ -1,0 +1,21 @@
+{
+  "name": "cps-api",
+  "version": "0.0.0",
+  "description": "Clusterpoint Node.js API",
+  "main": "lib/cps.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/enoyhs/cps-nodejs-api.git"
+  },
+  "keywords": [
+    "clusterpoint"
+  ],
+  "author": "Aigars Eglajs (Clusterpoint)",
+  "bugs": {
+    "url": "https://github.com/enoyhs/cps-nodejs-api/issues"
+  },
+  "homepage": "https://github.com/enoyhs/cps-nodejs-api"
+}
