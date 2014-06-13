@@ -20,6 +20,7 @@
   "homepage": "https://github.com/enoyhs/cps-nodejs-api",
   "dependencies": {
     "xml2js": "^0.4.4",
-    "xmlbuilder": "^2.2.1"
+    "xmlbuilder": "^2.2.1",
+    "lodash": "^2.4.1"
   }
 }
