@@ -1,4 +1,31 @@
-// Node.js includes
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: request.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: request.js</h1>
+
+    
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>// Node.js includes
 var util = require('util');
 
 // 3rd party includes
@@ -9,15 +36,15 @@ var _ = require('lodash');
 
 // Extend lodash with few useful checks
 _.isPositiveOrZero = function(value) {
-    return _.isFinite(value) && value >= 0;
+    return _.isFinite(value) &amp;&amp; value >= 0;
 }
 
 _.isInRange = function(value, min, max) {
-    return _.isFinite(value) && value >= min && value <= max;
+    return _.isFinite(value) &amp;&amp; value >= min &amp;&amp; value &lt;= max;
 }
 
 /**
-* Escapes <, > and & characters in the given term for inclusion into XML (like the search query). Also wraps the term in XML tags if xpath is specified.
+* Escapes &lt;, > and &amp; characters in the given term for inclusion into XML (like the search query). Also wraps the term in XML tags if xpath is specified.
 * Note that this function doesn't escape the @, $, " and other symbols that are meaningful in a search query. If You want to escape input that comes directly
 * from the user and that isn't supposed to contain any search operators at all, it's probably better to use {@link QueryTerm}
 * @function
@@ -33,15 +60,15 @@ var Term = exports.Term = function(term, xpath, escape) {
     if (xpath) {
         var tags = xpath.split('/');
         for (var i in tags) {
-            prefix += '<' + tags[i] + '>';
-            postfix = '</' + tags[i] + '>' + postfix;
+            prefix += '&lt;' + tags[i] + '>';
+            postfix = '&lt;/' + tags[i] + '>' + postfix;
         }
     }
     return prefix + ((escape) ? _.escape(term) : term) + postfix;
 }
 
 /**
-* Escapes <, > and & characters, as well as @"{}()=$~+ (search query operators) in the given term for inclusion into the search query.
+* Escapes &lt;, > and &amp; characters, as well as @"{}()=$~+ (search query operators) in the given term for inclusion into the search query.
 * Also wraps the term in XML tags if xpath is specified.
 * @function
 * @param {String} term the term to be escaped (e.g. a search query term)
@@ -51,8 +78,8 @@ var Term = exports.Term = function(term, xpath, escape) {
 * @see Term
 */
 var QueryTerm = exports.QueryTerm = function(term, xpath, allowed_symbols) {
-    var invalidSymbols = "@$\"=<>(){}!+".replace(new RegExp("[" + ((allowed_symbols) ? allowed_symbols : "") + "]", "g"), "");
-    term = term.replace(new RegExp("[" + invalidSymbols + "]", "g"), "\\$&");
+    var invalidSymbols = "@$\"=&lt;>(){}!+".replace(new RegExp("[" + ((allowed_symbols) ? allowed_symbols : "") + "]", "g"), "");
+    term = term.replace(new RegExp("[" + invalidSymbols + "]", "g"), "\\$&amp;");
     return Term(term, xpath);
 }
 
@@ -63,7 +90,7 @@ var QueryTerm = exports.QueryTerm = function(term, xpath, allowed_symbols) {
 * @param {String} ascdesc optional parameter to specify ascending/descending order. By default most relevant documents are returned first
 */
 var RelevanceOrdering = exports.RelevanceOrdering = function(ascdesc) {
-    return '<relevance>' + _.escape(ascdesc) + '</relevance>';
+    return '&lt;relevance>' + _.escape(ascdesc) + '&lt;/relevance>';
 }
 
 /**
@@ -75,7 +102,7 @@ var RelevanceOrdering = exports.RelevanceOrdering = function(ascdesc) {
 */
 var NumericOrdering = exports.NumericOrdering = function(tag, ascdesc) {
     ascdesc = ascdesc || 'ascending';
-    return '<numeric>' + Term(ascdesc, tag) + '</numeric>';
+    return '&lt;numeric>' + Term(ascdesc, tag) + '&lt;/numeric>';
 }
 
 /**
@@ -87,7 +114,7 @@ var NumericOrdering = exports.NumericOrdering = function(tag, ascdesc) {
 */
 var DateOrdering = exports.DateOrdering = function(tag, ascdesc) {
     ascdesc = ascdesc || 'ascending';
-    return '<date>' + Term(ascdesc, tag) + '</date>';
+    return '&lt;date>' + Term(ascdesc, tag) + '&lt;/date>';
 }
 
 /**
@@ -100,15 +127,15 @@ var DateOrdering = exports.DateOrdering = function(tag, ascdesc) {
 */
 var StringOrdering = exports.StringOrdering = function(tag, lang, ascdesc) {
     ascdesc = ascdesc || 'ascending';
-    return '<string>' + Term(ascdesc + ',' + lang, tag) + '</string>';
+    return '&lt;string>' + Term(ascdesc + ',' + lang, tag) + '&lt;/string>';
 }
 
 var GenericDistanceOrdering = function(type, array, ascdesc) {
-    var res = '<distance type="' + type + '" order="' + ascdesc + '">';
+    var res = '&lt;distance type="' + type + '" order="' + ascdesc + '">';
     for (var path in array) {
         res += Term(array[path], path);
     }
-    res += '</distance>';
+    res += '&lt;/distance>';
     return res;
 }
 
@@ -201,7 +228,7 @@ var Request = exports.Request = function(command, requestId) {
  * @param  {String} documentRootXpath
  * @param  {String} documentIdXpath
  * @param  {String} envelopeParams params that should be padded with cps namespace (username, password, storage, etc.)
- * @param  {bool} createXML indicates if xml should be created & validated (slower) @default true
+ * @param  {bool} createXML indicates if xml should be created &amp; validated (slower) @default true
  * @return {String} XML string of request
  */
 Request.prototype.getRequestXml = function(documentRootXpath, documentIdXpath, envelopeParams, createXML) {
@@ -209,7 +236,7 @@ Request.prototype.getRequestXml = function(documentRootXpath, documentIdXpath, e
     if (createXML === true) {
         doc = builder.create("cps:request").att("xmlns:cps", "www.clusterpoint.com");
     } else {
-        doc = "<cps:request xmlns:cps=\"www.clusterpoint.com\">";
+        doc = "&lt;cps:request xmlns:cps=\"www.clusterpoint.com\">";
     }
     for (var i in envelopeParams) {
         if (!Array.isArray(envelopeParams[i])) envelopeParams[i] = [envelopeParams[i]];
@@ -217,21 +244,21 @@ Request.prototype.getRequestXml = function(documentRootXpath, documentIdXpath, e
             if (createXML === true) {
                 doc.ele("cps:" + i, envelopeParams[i][j]);
             } else {
-                doc += "<cps:" + i + ">" + envelopeParams[i][j] + "</cps:" + i + ">";
+                doc += "&lt;cps:" + i + ">" + envelopeParams[i][j] + "&lt;/cps:" + i + ">";
             }
         }
     }
     if (createXML === true) {
         doc = doc.ele("cps:content");
     } else {
-        doc += "<cps:content>";
+        doc += "&lt;cps:content>";
     }
     for (var i in this.textParams) {
         for (var j in this.textParams[i]) {
             if (createXML === true) {
                 doc.ele(i, this.textParams[i][j]);
             } else {
-                doc += "<" + i + ">" + _.escape(this.textParams[i][j]) + "</" + i + ">";
+                doc += "&lt;" + i + ">" + _.escape(this.textParams[i][j]) + "&lt;/" + i + ">";
             }
         }
     }
@@ -240,26 +267,26 @@ Request.prototype.getRequestXml = function(documentRootXpath, documentIdXpath, e
             if (createXML === true) {
                 doc.ele(i).raw(this.rawParams[i][j]);
             } else {
-                doc += "<" + i + ">" + this.rawParams[i][j] + "</" + i + ">";
+                doc += "&lt;" + i + ">" + this.rawParams[i][j] + "&lt;/" + i + ">";
             }
         }
     }
     for (var i in this.unknownParams) {
         // Allow only document tags from unknown params
-        if (!this.allowUnknownParams && (i != documentRootXpath && i != "_document" && i != "_id")) continue;
+        if (!this.allowUnknownParams &amp;&amp; (i != documentRootXpath &amp;&amp; i != "_document" &amp;&amp; i != "_id")) continue;
         // If we encounter default root tag (document), then try to change it to connection root tag
         var root = (i == "_document") ? documentRootXpath : i;
         if (!_.isArray(this.unknownParams[i])) this.unknownParams[i] = [this.unknownParams[i]];
         for (var j in this.unknownParams[i]) {
             var val = this.unknownParams[i][j];
             // If value is just a string, if it is supposed to be an id, set appropiate wrap
-            if (i == "_id" && _.isString(val)) {
+            if (i == "_id" &amp;&amp; _.isString(val)) {
                 var tags = documentIdXpath.split('/');
                 root = tags.shift();
                 var prefix = '', postfix = '';
                 for (var ti in tags) {
-                    prefix += '<' + tags[ti] + '>';
-                    postfix = '</' + tags[ti] + '>' + postfix;
+                    prefix += '&lt;' + tags[ti] + '>';
+                    postfix = '&lt;/' + tags[ti] + '>' + postfix;
                 }
                 val = prefix + val + postfix;
             } else if (_.isString(val)) {
@@ -276,14 +303,14 @@ Request.prototype.getRequestXml = function(documentRootXpath, documentIdXpath, e
             if (createXML === true) {
                 doc.ele(root).att("xmlns:js", "www.clusterpoint.com/wiki/XML_JSON_conversion").raw(val);
             } else {
-                doc += "<" + root + " xmlns:js=\"www.clusterpoint.com/wiki/XML_JSON_conversion\">" + val + "</" + root + ">";
+                doc += "&lt;" + root + " xmlns:js=\"www.clusterpoint.com/wiki/XML_JSON_conversion\">" + val + "&lt;/" + root + ">";
             }
         }
     }
     if (createXML === true) {
         doc = doc.end({pretty: false});
     } else {
-        doc += "</cps:content></cps:request>";
+        doc += "&lt;/cps:content>&lt;/cps:request>";
     }
     return doc;
 }
@@ -334,7 +361,7 @@ Request.prototype.setExactMatch = function(value, replace) {
     return this; 
 }
 Request.prototype.setGroup = function(tagName, count, replace) { 
-    if (_.isString(tagName) && _.isPositiveOrZero(count)) {
+    if (_.isString(tagName) &amp;&amp; _.isPositiveOrZero(count)) {
         this.setParam('group', value, replace); 
         this.setParam('group_size', count, replace);
     }
@@ -440,7 +467,7 @@ var GetValueType = exports.GetValueType = function(value, key) {
         type = ' js:type="null"';
         validType = true;
     }
-    if (_.isNumber(value) && _.isFinite(value)) {
+    if (_.isNumber(value) &amp;&amp; _.isFinite(value)) {
         type = ' js:type="number"';
         validType = true;
     }
@@ -476,23 +503,45 @@ var ObjectToXml = exports.ObjectToXml = function(obj) {
 
         if (_.isArray(value)) {
             if (_.isEmpty(value)) {
-                res += '<' + key + type + '/>';
+                res += '&lt;' + key + type + '/>';
             } else {
                 for (var i in value) {
-                    res += '<' + key + GetValueType(value[i], key) + '>';
+                    res += '&lt;' + key + GetValueType(value[i], key) + '>';
                     res += ValueToXml(value[i], true);
-                    res += '</' + key + '>';
+                    res += '&lt;/' + key + '>';
                 }
             }
         } else {
-            if (type && _.isPlainObject(value) && _.isEmpty(value)) {
-                res += '<' + key + type + '/>';
+            if (type &amp;&amp; _.isPlainObject(value) &amp;&amp; _.isEmpty(value)) {
+                res += '&lt;' + key + type + '/>';
             } else {
-                res += '<' + key + type + '>';
+                res += '&lt;' + key + type + '>';
                 res += ValueToXml(value, true);
-                res += '</' + key + '>';
+                res += '&lt;/' + key + '>';
             }
         }
     }
     return res;
-}
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="Connection.html">Connection</a></li><li><a href="Reply.html">Reply</a></li><li><a href="SearchRequest.html">SearchRequest</a></li></ul><h3>Mixins</h3><ul><li><a href="Request.html">Request</a></li></ul><h3>Global</h3><ul><li><a href="global.html#DateOrdering">DateOrdering</a></li><li><a href="global.html#GetValueType">GetValueType</a></li><li><a href="global.html#LatLonDistanceOrdering">LatLonDistanceOrdering</a></li><li><a href="global.html#NumericOrdering">NumericOrdering</a></li><li><a href="global.html#ObjectToXml">ObjectToXml</a></li><li><a href="global.html#PlaneDistanceOrdering">PlaneDistanceOrdering</a></li><li><a href="global.html#QueryTerm">QueryTerm</a></li><li><a href="global.html#RelevanceOrdering">RelevanceOrdering</a></li><li><a href="global.html#StringOrdering">StringOrdering</a></li><li><a href="global.html#Term">Term</a></li><li><a href="global.html#ValueToXml">ValueToXml</a></li></ul>
+</nav>
+
+<br clear="both">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha9</a> on Wed Aug 06 2014 11:57:22 GMT+0300 (EEST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
