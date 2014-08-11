@@ -68,6 +68,30 @@ var Term = exports.Term = function(term, xpath, escape) {
 }
 
 /**
+ * Creates xml string from provided object. 
+ * All keys will be tag names. Tag names specified with '/' seperator will be expanded to correct hierarchy.
+ * All values that are string, number or boolean will be saved as a value of term
+ * @function
+ * @param {Object} obj    Object Term
+ * @param {bool} escape Should values be escaped
+ * @see  Term
+ */
+var ObjectTerm = exports.ObjectTerm = function(obj, escape) {
+    escape = (typeof escape !== 'undefined') ? escape : true;
+    var res = '';
+    if (_.isPlainObject(obj)) {
+        for (var i in obj) {
+            if (_.isString(obj[i]) || _.isNumber(obj[i]) || _.isBoolean(obj[i])) {
+                res += Term(obj[i], i, escape);
+            } else if (_.isPlainObject(obj[i])) {
+                res += Term(ObjectTerm(obj[i], escape), i, false);
+            }
+        }
+    }
+    return res;
+}
+
+/**
 * Escapes &lt;, > and &amp; characters, as well as @"{}()=$~+ (search query operators) in the given term for inclusion into the search query.
 * Also wraps the term in XML tags if xpath is specified.
 * @function
@@ -166,7 +190,6 @@ var PlaneDistanceOrdering = exports.PlaneDistanceOrdering = function(array, ascd
 /**
  * Constructs an instance of the Request class
  * @class
- * @mixin
  * @param {String} command Specifies the command field for the request
  * @param {String} requestId The request ID. Can be useful for identifying a particular request in a log file when debugging
  */
@@ -335,31 +358,75 @@ Request.prototype.setParam = function(key, values, replace) {
     }
 }
 
-// setParam helper functions for various parameters
+/**
+ * Sets document count to return
+ * @param {int} value   Document count to return
+ * @param {bool} replace Should previous value be replaced
+ */
 Request.prototype.setDocs = function(value, replace) { 
     if (_.isPositiveOrZero(value)) this.setParam('docs', value, replace); 
     return this;
 }
+/**
+ * Sets offset
+ * @param {int} value   Offset to return documents from
+ * @param {bool} replace Should previous value be replaced
+ */
 Request.prototype.setOffset = function(value, replace) { 
     if (_.isPositiveOrZero(value)) this.setParam('offset', value, replace); 
     return this; 
 }
-Request.prototype.setQuery = function(value, replace) { 
-    if (_.isString(value)) this.setParam('query', value, replace); 
+/**
+ * Sets query
+ * String is a formatted xml string
+ * Object will be converted to xml string using ObjectTerm helper function
+ * @param {Object|String} value   Query object or string
+ * @param {bool} replace Should previous query value be replaced
+ * @see  ObjectTerm
+ */
+Request.prototype.setQuery = function(value, replace) {
+    if (_.isPlainObject(value)) this.setParam('query', ObjectTerm(value), replace);
+    else if (_.isString(value)) this.setParam('query', value, replace); 
     return this; 
 }
+/**
+ * Sets facet paths
+ * @param {String|String[]} value   a single path as a string or an array of paths
+ * @param {bool} replace Should previous values be replaced
+ */
 Request.prototype.setFacet = function(value, replace) { 
-    if (_.isString(value)) this.setParam('facet', value, replace); 
+    if (_.isArray(value)) {
+        if (replace) this.setParam('facet', [], true); // Reset params if need replacing
+        _.forEach(value, this.setFacet, this);
+    } else if (_.isString(value)) {
+        this.setParam('facet', value, replace);
+    }
     return this; 
 }
+/**
+ * Sets stem-lang
+ * @param {String} value   Stem language code (2-letter language ID)
+ * @param {bool} replace Should previous value be replaced
+ */
 Request.prototype.setStemLang = function(value, replace) { 
     if (_.isString(value)) this.setParam('stem-lang', value, replace); 
     return this; 
 }
+/**
+ * Sets exact-match
+ * @param {String} value   binary or text
+ * @param {bool} replace Should previous value be replaced
+ */
 Request.prototype.setExactMatch = function(value, replace) { 
     if (_.isString(value)) this.setParam('exact-match', value, replace); 
     return this; 
 }
+/**
+ * Sets grouping sizes
+ * @param {String} tagName Tag name of the group
+ * @param {int} count   Number of results to return per group
+ * @param {bool} replace Should previous value be replaced
+ */
 Request.prototype.setGroup = function(tagName, count, replace) { 
     if (_.isString(tagName) &amp;&amp; _.isPositiveOrZero(count)) {
         this.setParam('group', value, replace); 
@@ -367,6 +434,14 @@ Request.prototype.setGroup = function(tagName, count, replace) {
     }
     return this; 
 }
+/**
+ * Sets listing policy
+ * Listing policy is:
+ *  * String - already ready xml policy as xml string
+ *  * Object - where key is tag name and value is listing type (yes, no, highligh, snippet). Nested paths should be provided as single string with '/'  seperating levels
+ * @param {String|Object} list    Listing policy. 
+ * @param {bool} replace Should previous listing policy be replaced
+ */
 Request.prototype.setList = function(list, replace) {
     var listString = '';
     if (_.isString(list)) {
@@ -383,7 +458,7 @@ Request.prototype.setList = function(list, replace) {
 }
 /**
  * Sets ordering of results
- * @param {String} value   How should results be ordered (xml string)
+ * @param {String|String[]} value   How should results be ordered (xml string)
  * @param {bool} replace Should previous set ordering be replaced
  */
 Request.prototype.setOrdering = function(value, replace) { 
@@ -395,22 +470,57 @@ Request.prototype.setOrdering = function(value, replace) {
     }
     return this; 
 }
+/**
+ * Defines aggregation queries for the search request
+ * @param {String|String[]} value   Aggregation query
+ * @param {bool} replace Should previous aggregate query be replaced
+ */
 Request.prototype.setAggregate = function(value, replace) { 
-    if (_.isString(value)) this.setParam('aggregate', value, replace); 
+    if (_.isArray(value)) {
+        if (replace) this.setParam('aggregate', [], true); // Reset params if need replacing
+        _.forEach(value, this.setAggregate, this);
+    } else if (_.isString(value)) {
+        this.setParam('aggregate', value, replace);
+    }
     return this; 
 }
+/**
+* Minimum ratio between the occurrence of the alternative and the occurrence of the search term.
+* If this parameter is increased, less results are returned while performance is improved.
+* @param {double} value cr value
+* @param {bool} replace Should previous set value be replaced
+*/
 Request.prototype.setCr = function(value, replace) { 
     if (_.isNumber(value)) this.setParam('cr', value, replace); 
     return this; 
 }
+/**
+* A number that limits how much the alternative may differ from the search term,
+* the greater the idif value, the greater the allowed difference.
+* If this parameter is increased, more results are returned while performance is decreased.
+* @param {double} value idif value
+* @param {bool} replace Should previous set value be replaced
+*/
 Request.prototype.setIdif = function(value, replace) { 
     if (_.isNumber(value)) this.setParam('idif', value, replace); 
     return this; 
 }
+/**
+* A number that limits the overall estimate of the quality of the alternative,
+* the greater the cr value and the smaller the idif value, the greater the h value.
+* If this parameter is increased, less results are returned while performance is improved.
+* @param {double} value h value
+* @param {bool} replace Should previous set value be replaced
+*/
 Request.prototype.setH = function(value, replace) { 
     if (_.isNumber(value)) this.setParam('h', value, replace); 
     return this; 
 }
+/**
+ * Sets paths for listing
+ * @param {String|String[]} value   A single facet path as string or an array of paths to list the facet terms from
+ * @param {bool} replace Should previous set values be replaced
+ */
 Request.prototype.setPath = function(value, replace) { 
     if (_.isArray(value)) {
         if (replace) this.setParam('path', [], true); // Reset params if need replacing
@@ -532,13 +642,13 @@ var ObjectToXml = exports.ObjectToXml = function(obj) {
 </div>
 
 <nav>
-    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="Connection.html">Connection</a></li><li><a href="Reply.html">Reply</a></li><li><a href="SearchRequest.html">SearchRequest</a></li></ul><h3>Mixins</h3><ul><li><a href="Request.html">Request</a></li></ul><h3>Global</h3><ul><li><a href="global.html#DateOrdering">DateOrdering</a></li><li><a href="global.html#GetValueType">GetValueType</a></li><li><a href="global.html#LatLonDistanceOrdering">LatLonDistanceOrdering</a></li><li><a href="global.html#NumericOrdering">NumericOrdering</a></li><li><a href="global.html#ObjectToXml">ObjectToXml</a></li><li><a href="global.html#PlaneDistanceOrdering">PlaneDistanceOrdering</a></li><li><a href="global.html#QueryTerm">QueryTerm</a></li><li><a href="global.html#RelevanceOrdering">RelevanceOrdering</a></li><li><a href="global.html#StringOrdering">StringOrdering</a></li><li><a href="global.html#Term">Term</a></li><li><a href="global.html#ValueToXml">ValueToXml</a></li></ul>
+    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="AlternativesRequest.html">AlternativesRequest</a></li><li><a href="Connection.html">Connection</a></li><li><a href="DeleteRequest.html">DeleteRequest</a></li><li><a href="InsertRequest.html">InsertRequest</a></li><li><a href="ListFacetsRequest.html">ListFacetsRequest</a></li><li><a href="ListFirstRequest.html">ListFirstRequest</a></li><li><a href="ListLastRequest.html">ListLastRequest</a></li><li><a href="ListLastRetrieveFirstRequest.html">ListLastRetrieveFirstRequest</a></li><li><a href="ListPathsRequest.html">ListPathsRequest</a></li><li><a href="ListWordsRequest.html">ListWordsRequest</a></li><li><a href="LookupRequest.html">LookupRequest</a></li><li><a href="ModifyRequest.html">ModifyRequest</a></li><li><a href="PartialReplaceRequest.html">PartialReplaceRequest</a></li><li><a href="ReplaceRequest.html">ReplaceRequest</a></li><li><a href="Reply.html">Reply</a></li><li><a href="Request.html">Request</a></li><li><a href="RetrieveFirstRequest.html">RetrieveFirstRequest</a></li><li><a href="RetrieveLastRequest.html">RetrieveLastRequest</a></li><li><a href="RetrieveRequest.html">RetrieveRequest</a></li><li><a href="SearchDeleteRequest.html">SearchDeleteRequest</a></li><li><a href="SearchRequest.html">SearchRequest</a></li><li><a href="ShowHistoryRequest.html">ShowHistoryRequest</a></li><li><a href="SimilarDocumentsRequest.html">SimilarDocumentsRequest</a></li><li><a href="SimilarTextRequest.html">SimilarTextRequest</a></li><li><a href="SQLSearchRequest.html">SQLSearchRequest</a></li><li><a href="StatusRequest.html">StatusRequest</a></li><li><a href="UpdateRequest.html">UpdateRequest</a></li></ul><h3>Global</h3><ul><li><a href="global.html#DateOrdering">DateOrdering</a></li><li><a href="global.html#GetValueType">GetValueType</a></li><li><a href="global.html#LatLonDistanceOrdering">LatLonDistanceOrdering</a></li><li><a href="global.html#NumericOrdering">NumericOrdering</a></li><li><a href="global.html#ObjectTerm">ObjectTerm</a></li><li><a href="global.html#ObjectToXml">ObjectToXml</a></li><li><a href="global.html#PlaneDistanceOrdering">PlaneDistanceOrdering</a></li><li><a href="global.html#QueryTerm">QueryTerm</a></li><li><a href="global.html#RelevanceOrdering">RelevanceOrdering</a></li><li><a href="global.html#StringOrdering">StringOrdering</a></li><li><a href="global.html#Term">Term</a></li><li><a href="global.html#ValueToXml">ValueToXml</a></li></ul>
 </nav>
 
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha9</a> on Wed Aug 06 2014 11:57:22 GMT+0300 (EEST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha9</a> on Mon Aug 11 2014 10:55:44 GMT+0300 (EEST)
 </footer>
 
 <script> prettyPrint(); </script>
