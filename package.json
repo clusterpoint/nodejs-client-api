@@ -1,6 +1,6 @@
 {
   "name": "cps-api",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Clusterpoint Node.js API",
   "main": "lib/cps.js",
   "scripts": {
@@ -20,7 +20,7 @@
   "homepage": "https://github.com/enoyhs/cps-nodejs-api",
   "dependencies": {
     "xml2js": "^0.4.4",
-    "xmlbuilder": "^2.2.1",
-    "lodash": "^2.4.1"
+    "xmlbuilder": "^2.5.0",
+    "lodash": "^3.1.0"
   }
 }
