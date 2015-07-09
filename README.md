@@ -1,10 +1,10 @@
-cps-nodejs-api
+nodejs-client-api
 ==============
 
 Clusterpoint Node.js API
 
-Instructions: http://clusterpoint.com/wiki/Node.js_API_overview
+Instructions: http://docs.clusterpoint.com/wiki/Node.js_API_overview
 
-Conversion description: http://www.clusterpoint.com/wiki/XML_JSON_conversion
+Clusterpoint examples: http://docs.clusterpoint.com/examples
 
 NPM: https://www.npmjs.org/package/cps-api
