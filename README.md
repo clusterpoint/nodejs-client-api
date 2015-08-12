@@ -1,10 +1,24 @@
-nodejs-client-api
+#nodejs-client-api#
 ==============
 
-Clusterpoint Node.js API
+##Clusterpoint Node.js API##
 
-Instructions: http://docs.clusterpoint.com/wiki/Node.js_API_overview
+* [Clusterpoint WEB page](https://www.clusterpoint.com)
 
-Clusterpoint examples: http://docs.clusterpoint.com/examples
+* [Clusterpoint Documentation page](https://www.clusterpoint.com/docs/)
 
-NPM: https://www.npmjs.org/package/cps-api
+* [Clusterpoint API library reference and examples](https://www.clusterpoint.com/docs/?page=Reference)
+
+* [Clusterpoint tutorials](https://www.clusterpoint.com/docs/?page=Tutorials)
+
+* [NPM package manager](https://www.npmjs.org/package/cps-api)
+
+##Installation##
+
+Use NPM package manager to install Clusterpoint Node.js API:
+
+`npm install cps-api`
+
+##Support##
+Please feel free to contact the maintainer of this package on
+support@clusterpoint.com

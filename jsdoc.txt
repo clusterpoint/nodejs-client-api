@@ -1,0 +1,9 @@
+Clusterpoint Node.js API
+
+API documentation generator instruction.
+
+Instal JSdoc
+    npm install jsdoc
+
+Run JSdoc from API root path
+    jsdoc --destination docs lib/*.js README.md

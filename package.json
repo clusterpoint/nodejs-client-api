@@ -1,7 +1,7 @@
 {
   "name": "cps-api",
-  "version": "0.0.11",
-  "description": "Clusterpoint Node.js API",
+  "version": "3.0.0",
+  "description": "Clusterpoint Node.js client API",
   "main": "lib/cps.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -13,7 +13,7 @@
   "keywords": [
     "clusterpoint"
   ],
-  "author": "Aigars Eglajs (Clusterpoint)",
+  "author": "Clusterpoint",
   "bugs": {
     "url": "https://github.com/clusterpoint/nodejs-client-api/issues"
   },
