@@ -1,7 +1,4 @@
-#nodejs-client-api#
-==============
-
-##Clusterpoint Node.js API##
+##Node.js API for Clusterpoint v3.* database
 
 * [Clusterpoint WEB page](https://www.clusterpoint.com)
 
@@ -11,12 +8,12 @@
 
 * [NPM package manager](https://www.npmjs.org/package/cps-api)
 
-##Installation##
+##Installation
 
 Use NPM package manager to install Clusterpoint Node.js API:
 
 `npm install cps-api`
 
-##Support##
+##Support
 Please feel free to contact the maintainer of this package on
 support@clusterpoint.com
