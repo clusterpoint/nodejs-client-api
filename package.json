@@ -1,6 +1,6 @@
 {
   "name": "cps-api",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Clusterpoint Node.js API for Clusterpoint v3.* database",
   "main": "lib/cps.js",
   "scripts": {
