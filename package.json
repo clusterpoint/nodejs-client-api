@@ -1,7 +1,7 @@
 {
   "name": "cps-api",
   "version": "3.0.0",
-  "description": "Clusterpoint Node.js client API",
+  "description": "Clusterpoint Node.js API for Clusterpoint v3.* database",
   "main": "lib/cps.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
